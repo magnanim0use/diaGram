@@ -2,8 +2,15 @@
 <html>
   <head>
     <link rel='stylesheet' type='css' href='styles.css'>
+    <script src='http://code.jquery.com/jquery-1.11.3.min.js'></script>
   </head>
   <body>
+    <select autofocus name="diaGram" id="contentSelector">
+      <option value="text">add text</option>
+      <option value="image">add an image url</option>
+    </select>
+    <input id='textInput' type="text" name="formInput">
+    <button id='formButton'>click me and pick a spot</button>
     <div class="diagram">
     </div>
     <script src="d3.js" charset="utf-8"></script>

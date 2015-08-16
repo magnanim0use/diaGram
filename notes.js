@@ -10,6 +10,14 @@
   //parent node turns light blue to indicate that it can expand
   //maybe expanded parent nodes will be light green
 
+//saturday:
+  //svg border
+  //container border
+    //connect lines from border
+  //move nodes on click and hold body
+  //wrap text
+  //selector, form, button (with explaination)
+
 //refactor pom-pom in Backbone
 //task model, task collection
 //timer models, timer views, timer collection (with countdown, countup methods)

@@ -1,10 +1,15 @@
-//create container node
-  //add button
-  //connectTo, connectFrom properties
-  //draw arrow method (directed graph)
-  //expand/contract method (.hidden class on connectTo children, .contracted & .expanded class for parent) [only works if children's connectFrom only has parent div and no others]
 
-//d3 data: container node
+var input;
+
+document.getElementById('formButton').addEventListener('click', function(){
+  input = document.getElementById('textInput').value;
+  return input;
+})
+
+
+//--------------- 
+//Class Constructors
+
 
 //container node constructor
 var idCounter = 0;
@@ -38,6 +43,13 @@ var ImageNode = function(imageURL) {
 ImageNode.prototype.constructor = ImageNode;
 ImageNode.prototype = Object.create(ContainerNode.prototype);
 
+// var textToRender;
+// function setText = function() {
+//   console.log('input:', )
+//   textToRender = 
+// }
+
+
 
 //not sure we need D3 shapes persay (can use html divs)
 // rect = rect.data(dataNodes, function(d) { return d.id; });
@@ -59,14 +71,43 @@ var svg = d3.select('.diagram')
     width: width,
     height: height,
   })
+  // .on('mouseover', function(){
+  //   this.
+  // })
 
 //array of container nodes to use as D3 data
-var textNode = new TextNode('textNode');
-var textNode1 = new TextNode('textNode1');
-var textNode2 = new TextNode('textNode2');
+// var textNode = new TextNode('textNode');
+// var textNode1 = new TextNode('textNode1');
+// var textNode2 = new TextNode('textNode2');
+// var imageNode = new ImageNode('http://www.ibiblio.org/wm/paint/auth/kandinsky/kandinsky.comp-8.jpg');
 
 var dataNodes = [],
   lastNodeId = 0;
+
+
+
+
+// var force = d3.layout.force()
+//     .nodes(dataNodes)
+//     .links(links)
+//     .size([width, height])
+//     // .linkDistance(150)
+//     // .linkStrength(300)
+//     // .charge(-500)
+//     .on('tick', tick)
+
+// function tick() {
+//   link.attr("x1", function(d) { return d.source.x; })
+//       .attr("y1", function(d) { return d.source.y; })
+//       .attr("x2", function(d) { return d.target.x; })
+//       .attr("y2", function(d) { return d.target.y; });
+
+//   container.attr("cx", function(d) { return d.x; })
+//       .attr("cy", function(d) { return d.y; });
+
+//   console.log(container.attr)
+// }
+
 
 // svg.append('svg:defs').append('svg:marker')
 //   .attr({
@@ -122,19 +163,10 @@ function resetMouseVars () {
 function render() {
     path = path.data(links);
 
-    path.classed('selected', function(d) { return d === selectedTarget; })
-      .style('marker-start', function(d) { return d.source ? 'url(#start-arrow)' : ''; })
-      .style('marker-end', function(d) { return d.target ? 'url(#end-arrow)' : ''; });
-
     path.enter().append('svg:path')
       .attr('class', 'link')
-      .classed('selected', function(d) { return d === selectedTarget; })
-      .style('marker-start', function(d) { return d.source ? 'url(#start-arrow)' : ''; })
-      .style('marker-end', function(d) { return d.target ? 'url(#end-arrow)' : ''; })
+
       .on('mousedown', function(d) {
-        if(d3.event.ctrlKey) {
-          return;
-        }
 
         mousedownTarget = d;
           if (mousedownTarget === selectedTarget) {
@@ -152,27 +184,33 @@ function render() {
       .data(links)
       .enter().append("svg:line")
       .attr("class", "line.link")
-      .style('z-index', 0)
+      // .style('z-index', 0)
       .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; })
+      .attr('class', 'container:' + function(d) {
+        return d.id;
+      })
       .style({
         stroke: 'gray',
         // stroke-dasharray: '10, 2'
         'stroke-dasharray': 20,
-        'z-index': 0
+        // 'z-index': 0
       })
-      .attr("marker-end", "url(#arrowGray)")
+      // .attr("marker-end", "url(#arrowGray)")
 
     container = container.data(dataNodes);
 
-    container.selectAll('rect');
+    container.selectAll('g');
 
     // add new nodes
     var g = container.enter().append('rect')
       .attr({
         class: 'container',
+        // 'class':'container:' + function(d){
+        //   return d.id;
+        // }, 
         'z-index': 2,
         height: 80,
         width: 160,
@@ -186,13 +224,13 @@ function render() {
       .style('fill', function(d) { 
         return colors(d.id);
       })
-      .style('stroke', function(d) { 
-        return colors(d.id);
-      })
+      .style('stroke', 'black')
 
       .on('mousedown', function(d) {
+        // if (!d3.event.shiftKey) {
+        //   d3.select(this).on('.drag', null)
+        // }
 
-        // select node
         mousedownNode = d;
         if(mousedownNode === selectedNode) {
           selectedNode = null;
@@ -201,7 +239,7 @@ function render() {
           selectedNode = mousedownNode;
         }
         selectedTarget = null;
-
+        
         // reposition drag line
         dragLine
           .style('marker-end', 'url(#end-arrow)')
@@ -227,9 +265,6 @@ function render() {
           return; 
         }
 
-        // unenlarge target node
-        d3.select(this).attr('transform', '');
-
         selectedTarget = mouseupNode;
         
         var linkObj = {
@@ -240,11 +275,16 @@ function render() {
         selectedNode = null;
         links.push(linkObj);
         render();
-      });
+      })
+      // .call(drag)
 
-    var text = svg.selectAll('text').data(dataNodes) 
+      // svg.selectAll('g').call(drag)
+     
+  var text = svg.selectAll('text').data(dataNodes)
       .enter().append('text')
-      .attr('class','percents') 
+      .attr('class','container' + function(d){
+        return d.id;
+      })
       .text(function(d){
         return d.text;
       })
@@ -257,7 +297,23 @@ function render() {
         }
       })
 
-    // container.exit().remove();
+    
+    
+      // var image = svg.selectAll('image').data(dataNodes)
+    //   .enter().append('svg:image')
+    //   .attr({
+    //     x: function (d) {
+    //       return d.x - 20;
+    //     },
+    //     y: function (d) {
+    //       return d.y;
+    //     },
+    //     height: 160,
+    //     width: 220,
+    //     'xlink:href': function(d) {
+    //       return d.imageURL;
+    //     }
+    //   })
   }
 
 function mousedown() {
@@ -268,8 +324,14 @@ function mousedown() {
   }
 
   // insert new node at point
-  var mouseCoord = d3.mouse(this),
-      node = new TextNode("sample text");
+  var mouseCoord = d3.mouse(this)
+  // if (document.getElementById('contentSelector').value === 'text') {
+  //   node = new TextNode(input); 
+  // } else if (document.getElementById('contentSelector').value === 'image') {
+  //   node = new ImageNode(input);
+  // }
+  var node = new TextNode(input);
+      
   node.x = mouseCoord[0];
   node.y = mouseCoord[1];
   dataNodes.push(node);
@@ -299,6 +361,31 @@ function mouseup() {
   // clear mouse event vars
   resetMouseVars();
 }
+
+var drag = d3.behavior.drag()
+  .on('dragstart', function(){
+
+    d3.select(this)
+      .style('opacity', 0.6);
+  })
+  .on('drag', function() {
+      //need a select all in container
+      d3.select(this)
+        .attr({
+          x: d3.event.x,
+          y: d3.event.y
+      })
+  })
+  .on('dragend', function(){
+    d3.select(this)
+      .style('opacity', 1)
+    // d3.select(this).on('.drag', null)
+    // render();
+  })
+
+
+
+
 //to remove the node
 // function spliceLinksForNode(node) {
 //   var toSplice = links.filter(function(l) {
@@ -309,14 +396,19 @@ function mouseup() {
 //   });
 // }
 
-
 svg.on('mousedown', mousedown)
   .on('mousemove', mousemove)
-  .on('mouseup', mouseup);
+  .on('mouseup', mouseup)
+  // .on('keydown', keydown)
+  // .on('mouseover', mouseover)
 // d3.select(window)
 //   .on('keydown', keydown)
 //   .on('keyup', keyup);
 render();
+
+//------------------
+//jQuery
+
 
 
 
